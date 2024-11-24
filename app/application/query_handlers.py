@@ -27,9 +27,10 @@ class GetBankAccountBalanceQueryHandler:
     def __init__(self: Self, account_reader: AccountReader) -> None:
         self.account_reader: AccountReader = account_reader
 
-    async def __call__(self: Self, account_id: AccountId) -> Decimal:
+    async def __call__(self: Self, account_id: UUID) -> Decimal:
+        account_uuid: AccountId = AccountId(uuid = account_id)
         balance: Amount = await self.account_reader.get_account_balance(
-            account_id = account_id
+            account_id = account_uuid
         )
 
         return balance.amount
@@ -39,9 +40,10 @@ class GetBankAccountQueryHandler:
     def __init__(self: Self, account_reader: AccountReader) -> None:
         self.account_reader: AccountReader = account_reader
 
-    async def __call__(self: Self, account_id: AccountId) -> AccountResponse:
+    async def __call__(self: Self, account_id: UUID) -> AccountResponse:
+        account_uuid: AccountId = AccountId(uuid = account_id)
         bank_account: BankAccount = await self.account_reader.get_account(
-            account_id = account_id
+            account_id = account_uuid
         )
 
         return AccountResponse.from_bank_account(bank_account = bank_account)
