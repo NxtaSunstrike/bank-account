@@ -1,6 +1,5 @@
 from typing import Self, Protocol
 from abc import abstractmethod
-from decimal import Decimal
 
 from app.domain.events import BaseDomainEvent
 from app.domain.value_objects import AccountId
