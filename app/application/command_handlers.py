@@ -6,7 +6,7 @@ from app.domain.value_objects import AccountId, Amount
 from app.domain.bank_account import BankAccount
 from app.application.interfaces import EventStoreInterface, EventBusInterface
 from app.domain.events import BaseDomainEvent
-from app.domain.event_processor import EventStateProccessor
+from app.domain.factories import BankAccountFactory
 
 
 class CreateAccountCommandHandler:
@@ -19,7 +19,7 @@ class CreateAccountCommandHandler:
         self.event_bus: EventBusInterface = event_bus
 
     async def __call__(self: Self, account_id: UUID, balance: Decimal) -> None:
-        bank_account: BankAccount = BankAccount.create_account(
+        bank_account: BankAccount = BankAccountFactory.create_account(
             id=AccountId(account_id),
             balance=Amount(balance)
         )
@@ -40,7 +40,7 @@ class DebitAcountCommandHandler:
 
     async def __call__(self: Self, account_id: UUID, amount: Decimal) -> None:
         fetched_events: list[BaseDomainEvent] = await self.event_store.get_events(aggregate_id=account_id)
-        account: BankAccount = await EventStateProccessor.get_bank_account_state(fetched_events)
+        account: BankAccount = await BankAccountFactory.get_bank_account_state(fetched_events)
         account.deposit(amount=Amount(amount))
         events: list[BaseDomainEvent] = account.push_events()
 
@@ -59,7 +59,7 @@ class CreditAccountCommandHandler:
 
     async def __call__(self: Self, account_id: UUID, amount: Decimal) -> None:
         fetched_events: list[BaseDomainEvent] = await self.event_store.get_events(aggregate_id=account_id)
-        account: BankAccount = await EventStateProccessor.get_bank_account_state(fetched_events)
+        account: BankAccount = await BankAccountFactory.get_bank_account_state(fetched_events)
         account.withdraw(amount=Amount(amount))
         events: list[BaseDomainEvent] = account.push_events()
 

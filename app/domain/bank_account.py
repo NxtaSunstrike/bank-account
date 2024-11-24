@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from app.domain.event_manager import EventManager
 from app.domain.value_objects import AccountId, Amount
-from app.domain.events import AccountCreated, AccountCredited, AccountDebited, WithdrawalLimitChanged
+from app.domain.events import AccountCredited, AccountDebited, WithdrawalLimitChanged
 from app.domain.exceptions import WithdrawError
 
 
@@ -12,25 +12,6 @@ class BankAccount(EventManager):
     id: AccountId
     balance: Amount
     withdrawal_limit: Amount
-
-    @staticmethod
-    def create_account(
-        id: AccountId, balance: Amount
-    ) -> 'BankAccount': 
-        withdrawal_limit=Amount(1000.0)
-        account: BankAccount = BankAccount(
-            id=id.uuid, 
-            balance=balance.amount,
-            withdrawal_limit=withdrawal_limit.amount
-        )
-        event: AccountCreated = AccountCreated(
-            agregate_id=id.uuid,
-            account_id=id.uuid,
-            balance=balance.amount,
-            withdrawal_limit=withdrawal_limit.amount
-        )
-        account.add_event(event=event)
-        return BankAccount
 
     def withdraw(self: Self, amount: Amount) -> None:
         if amount > self.withdrawal_limit.amount:
