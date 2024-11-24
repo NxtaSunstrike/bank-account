@@ -14,9 +14,9 @@ class BankAccount(EventManager):
     withdrawal_limit: Amount
 
     def withdraw(self: Self, amount: Amount) -> None:
-        if event.amount > self.withdrawal_limit.amount:
+        if amount.amount > self.withdrawal_limit.amount:
             raise WithdrawError('Withdrawal limit exceeded')
-        if event.amount > self.balance.amount:
+        if amount.amount > self.balance.amount:
             raise WithdrawError('Insufficient funds')
         event: AccountDebited = AccountDebited(
             agregate_id=self.id.uuid,
