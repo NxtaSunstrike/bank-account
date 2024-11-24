@@ -40,7 +40,7 @@ class BankAccount(EventManager):
         event: WithdrawalLimitChanged = WithdrawalLimitChanged(
             agregate_id=self.id.uuid,
             account_id=self.id.uuid,
-            withdrawal_limit=self.withdrawal_limit.amount
+            amount=amount.amount
         )
         self._apply(event=event)
         self.add_event(event=event)
