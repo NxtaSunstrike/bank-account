@@ -15,16 +15,19 @@ class Account(EventManager):
 
     @staticmethod
     def create_account(
-        id: AccountId, balance: Amount = 0.0
+        id: AccountId, balance: Amount
     ) -> 'Account': 
+        withdrawal_limit=Amount(1000.0)
         account: Account = Account(
-            id=id, 
-            balance=balance,
-            withdrawal_limit=Amount(1000.0)
+            id=id.uuid, 
+            balance=balance.amount,
+            withdrawal_limit=withdrawal_limit.amount
         )
         event: AccountCreated = AccountCreated(
-            account_id=id.id,
-            balance=balance.amount
+            agregate_id=id.uuid,
+            account_id=id.uuid,
+            balance=balance.amount,
+            withdrawal_limit=withdrawal_limit.amount
         )
         account.add_event(event=event)
         return Account
@@ -38,7 +41,8 @@ class Account(EventManager):
         
         self.balance.amount -= amount.amount
         event: AccountDebited = AccountDebited(
-            account_id=self.id.id,
+            agregate_id=self.id.uuid,
+            account_id=self.id.uuid,
             amount=amount.amount
         )
         self.add_event(event=event)
@@ -46,16 +50,18 @@ class Account(EventManager):
     def deposit(self: Self, amount: Amount) -> None:
         self.balance.amount += amount.amount
         event: AccountCredited = AccountCredited(
-            account_id=self.id.id,
+            agregate_id=self.id.uuid,
+            account_id=self.id.uuid,
             amount=amount.amount
         )
-        self._upgrade_limit(amount=Amount(500.0))
         self.add_event(event=event)
+        self._upgrade_limit(amount=Amount(500.0))
 
     def _upgrade_limit(self: Self, amount: Amount) -> None:
         self.withdrawal_limit.amount += amount.amount
         event: WithdrawalLimitChanged = WithdrawalLimitChanged(
-            account_id=self.id.id,
+            agregate_id=self.id.uuid,
+            account_id=self.id.uuid,
             withdrawal_limit=self.withdrawal_limit.amount
         )
         self.add_event(event=event)

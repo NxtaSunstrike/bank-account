@@ -14,6 +14,7 @@ class BaseDomainEvent:
 class AccountCreated(BaseDomainEvent):
     account_id: UUID
     balance: Decimal
+    withdrawal_limit: Decimal
 
 
 @dataclass(frozen=True)

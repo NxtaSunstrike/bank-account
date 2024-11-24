@@ -8,7 +8,7 @@ from app.domain.exceptions import ValidationError
 
 @dataclass(frozen=True)
 class AccountId:
-    id: UUID
+    uuid: UUID
 
     def __post_init__(self: Self) -> None:
         if self.id is None:
