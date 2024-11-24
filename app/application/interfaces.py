@@ -7,7 +7,7 @@ from app.domain.bank_account import BankAccount
 from app.domain.value_objects import Amount
 
 
-class IventBusInterface(Protocol):
+class EventBusInterface(Protocol):
     @abstractmethod
     async def publish_to_queue(self: Self, events: list[BaseDomainEvent]) -> None:
         raise NotImplementedError('method must be implemented by subclasses')
