@@ -8,7 +8,7 @@ from app.domain.exceptions import WithdrawError
 
 
 @dataclass
-class Account(EventManager):
+class BankAccount(EventManager):
     id: AccountId
     balance: Amount
     withdrawal_limit: Amount
@@ -16,9 +16,9 @@ class Account(EventManager):
     @staticmethod
     def create_account(
         id: AccountId, balance: Amount
-    ) -> 'Account': 
+    ) -> 'BankAccount': 
         withdrawal_limit=Amount(1000.0)
-        account: Account = Account(
+        account: BankAccount = BankAccount(
             id=id.uuid, 
             balance=balance.amount,
             withdrawal_limit=withdrawal_limit.amount
@@ -30,7 +30,7 @@ class Account(EventManager):
             withdrawal_limit=withdrawal_limit.amount
         )
         account.add_event(event=event)
-        return Account
+        return BankAccount
 
     def withdraw(self: Self, amount: Amount) -> None:
         if amount > self.withdrawal_limit.amount:
