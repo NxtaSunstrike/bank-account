@@ -21,16 +21,6 @@ class EventStoreInterface(Protocol):
     @abstractmethod
     async def get_events(self: Self, aggregate_id: AccountId) -> list[BaseDomainEvent]:
         raise NotImplementedError('method must be implemented by subclasses')
-    
-
-class UnitOfWorkInterface(Protocol):
-    @abstractmethod
-    async def commit(self: Self) -> None:
-        raise NotImplementedError("commit() must be implemented")
-
-    @abstractmethod
-    async def rollback(self: Self) -> None:
-        raise NotImplementedError("rollback() must be implemented")
 
 
 class AccountReader(Protocol):

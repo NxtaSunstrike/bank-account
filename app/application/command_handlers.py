@@ -4,8 +4,9 @@ from decimal import Decimal
 
 from app.domain.value_objects import AccountId, Amount
 from app.domain.bank_account import BankAccount
-from app.application.interfaces import EventStoreInterface, EventBusInterface, UnitOfWorkInterface
+from app.application.interfaces import EventStoreInterface, EventBusInterface
 from app.domain.events import BaseDomainEvent
+from app.domain.event_processor import EventStateProccessor
 
 
 class CreateAccountCommandHandler:
@@ -13,12 +14,10 @@ class CreateAccountCommandHandler:
             self: Self, 
             event_store: EventStoreInterface, 
             event_bus: EventBusInterface,
-            uow: UnitOfWorkInterface
         ) -> None:
         self.event_store: EventStoreInterface = event_store
         self.event_bus: EventBusInterface = event_bus
-        self.uow: UnitOfWorkInterface = uow
-    
+
     async def __call__(self: Self, account_id: UUID, balance: Decimal) -> None:
         bank_account: BankAccount = BankAccount.create_account(
             id=AccountId(account_id),
@@ -28,7 +27,6 @@ class CreateAccountCommandHandler:
 
         await self.event_store.add_to_storage(events=events)
         await self.event_bus.publish_to_queue(events=events)
-        await self.uow.commit()
 
 
 class DebitAcountCommandHandler:
@@ -36,20 +34,18 @@ class DebitAcountCommandHandler:
             self: Self,
             event_store: EventStoreInterface,
             event_bus: EventBusInterface,
-            uow: UnitOfWorkInterface
         ) -> None:
         self.event_store: EventStoreInterface = event_store
         self.event_bus: EventBusInterface = event_bus
-        self.uow: UnitOfWorkInterface = uow
 
     async def __call__(self: Self, account_id: UUID, amount: Decimal) -> None:
-        account: BankAccount = ...
+        fetched_events: list[BaseDomainEvent] = await self.event_store.get_events(aggregate_id=account_id)
+        account: BankAccount = await EventStateProccessor.get_bank_account_state(fetched_events)
         account.deposit(amount=Amount(amount))
         events: list[BaseDomainEvent] = account.push_events()
 
         await self.event_store.add_to_storage(events=events)
         await self.event_bus.publish_to_queue(events=events)
-        await self.uow.commit()
 
 
 class CreditAccountCommandHandler:
@@ -57,17 +53,15 @@ class CreditAccountCommandHandler:
             self: Self,
             event_store: EventStoreInterface,
             event_bus: EventBusInterface,
-            uow: UnitOfWorkInterface
         ) -> None:
         self.event_store: EventStoreInterface = event_store
         self.event_bus: EventBusInterface = event_bus
-        self.uow: UnitOfWorkInterface = uow
 
     async def __call__(self: Self, account_id: UUID, amount: Decimal) -> None:
-        account: BankAccount = ...
+        fetched_events: list[BaseDomainEvent] = await self.event_store.get_events(aggregate_id=account_id)
+        account: BankAccount = await EventStateProccessor.get_bank_account_state(fetched_events)
         account.withdraw(amount=Amount(amount))
         events: list[BaseDomainEvent] = account.push_events()
 
         await self.event_store.add_to_storage(events=events)
         await self.event_bus.publish_to_queue(events=events)
-        await self.uow.commit()

@@ -14,4 +14,4 @@ class EventManager:
     def push_events(self: Self) -> list[BaseDomainEvent]:
         events: list[BaseDomainEvent] = self._events.copy()
         self._events.clear()
-        return self._events
+        return events

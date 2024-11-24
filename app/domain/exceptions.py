@@ -10,3 +10,6 @@ class ValidationError(DomainError):
 
 class WithdrawError(DomainError):
     ...
+
+class StateRestoringError(DomainError):
+    ...
