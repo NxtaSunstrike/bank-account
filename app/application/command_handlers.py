@@ -40,7 +40,7 @@ class DebitAcountCommandHandler:
 
     async def __call__(self: Self, account_id: UUID, amount: Decimal) -> None:
         fetched_events: list[BaseDomainEvent] = await self.event_store.get_events(aggregate_id=account_id)
-        account: BankAccount = await BankAccountFactory.get_bank_account_state(fetched_events)
+        account: BankAccount = ...
         account.deposit(amount=Amount(amount))
         events: list[BaseDomainEvent] = account.push_events()
 
@@ -59,7 +59,7 @@ class CreditAccountCommandHandler:
 
     async def __call__(self: Self, account_id: UUID, amount: Decimal) -> None:
         fetched_events: list[BaseDomainEvent] = await self.event_store.get_events(aggregate_id=account_id)
-        account: BankAccount = await BankAccountFactory.get_bank_account_state(fetched_events)
+        account: BankAccount = ...
         account.withdraw(amount=Amount(amount))
         events: list[BaseDomainEvent] = account.push_events()
 
